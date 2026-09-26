@@ -23,3 +23,26 @@ func TestNewSolvedCube(t *testing.T) {
 		t.Errorf("Expected color R at position 9, got %v", c.Facelets[9])
 	}
 }
+
+func TestMoveU(t *testing.T) {
+	// Arrange: Create a new solved cube
+	c := cube.NewSolvedCube()
+
+	// Act: Apply the Up move (90 degrees clockwise)
+	c.MoveU()
+
+	// Assert: Check adjacent faces
+	// After U move, the top row of the Front face (indices 18, 19, 20)
+	// should contain the colors that were previously on the Right face (cube.R)
+	if c.Facelets[18] != cube.R || c.Facelets[19] != cube.R || c.Facelets[20] != cube.R {
+		t.Errorf("Expected Front top row to have Right color (R), got %v, %v, %v",
+			c.Facelets[18], c.Facelets[19], c.Facelets[20])
+	}
+
+	// The top row of the Left face (indices 36, 37, 38)
+	// should contain the colors of the Front face (cube.F)
+	if c.Facelets[36] != cube.F || c.Facelets[37] != cube.F || c.Facelets[38] != cube.F {
+		t.Errorf("Expected Left top row to have Front color (F), got %v, %v, %v",
+			c.Facelets[36], c.Facelets[37], c.Facelets[38])
+	}
+}
