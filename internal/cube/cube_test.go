@@ -45,4 +45,21 @@ func TestMoveU(t *testing.T) {
 		t.Errorf("Expected Left top row to have Front color (F), got %v, %v, %v",
 			c.Facelets[36], c.Facelets[37], c.Facelets[38])
 	}
+
+}
+
+func TestMoveR(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCube()
+
+	// Act: Apply the Right move (90 degrees clockwise)
+	c.MoveR()
+
+	// Assert
+	// After R move, the right column of the Up face (indices 2, 5, 8)
+	// should contain the colors of the Front face (cube.F)
+	if c.Facelets[2] != cube.F || c.Facelets[5] != cube.F || c.Facelets[8] != cube.F {
+		t.Errorf("Expected Up right column to have Front color (F), got %v, %v, %v",
+			c.Facelets[2], c.Facelets[5], c.Facelets[8])
+	}
 }
