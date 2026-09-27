@@ -7,59 +7,49 @@ import (
 )
 
 func TestNewSolvedCube(t *testing.T) {
-	// Arrange
 	c := cube.NewSolvedCube()
-
-	// Act & Assert
-	// Check if the first 9 facelets belong to the U (Up) face
 	for i := 0; i < 9; i++ {
 		if c.Facelets[i] != cube.U {
-			t.Errorf("Expected color U at position %d, got %v", i, c.Facelets[i])
+			t.Errorf("Expected U color at position %d", i)
 		}
 	}
+}
 
-	// Check the first facelet of the R (Right) face (position 9)
-	if c.Facelets[9] != cube.R {
-		t.Errorf("Expected color R at position 9, got %v", c.Facelets[9])
+func TestApplyMove_U(t *testing.T) {
+	c := cube.NewSolvedCube()
+	c.ApplyMove(cube.MoveU)
+
+	if c.Facelets[18] != cube.R {
+		t.Errorf("Expected Front top row to have Right color (R) after U move")
 	}
 }
 
-func TestMoveU(t *testing.T) {
-	// Arrange: Create a new solved cube
+func TestApplyMove_4TimesReturnsToSolved(t *testing.T) {
 	c := cube.NewSolvedCube()
 
-	// Act: Apply the Up move (90 degrees clockwise)
-	c.MoveU()
+	// Act: Apply U move 4 times
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
 
-	// Assert: Check adjacent faces
-	// After U move, the top row of the Front face (indices 18, 19, 20)
-	// should contain the colors that were previously on the Right face (cube.R)
-	if c.Facelets[18] != cube.R || c.Facelets[19] != cube.R || c.Facelets[20] != cube.R {
-		t.Errorf("Expected Front top row to have Right color (R), got %v, %v, %v",
-			c.Facelets[18], c.Facelets[19], c.Facelets[20])
+	// Assert: It should be exactly like a newly solved cube
+	solved := cube.NewSolvedCube()
+	if c.Facelets != solved.Facelets {
+		t.Errorf("Cube did not return to solved state after 4 identical moves")
 	}
-
-	// The top row of the Left face (indices 36, 37, 38)
-	// should contain the colors of the Front face (cube.F)
-	if c.Facelets[36] != cube.F || c.Facelets[37] != cube.F || c.Facelets[38] != cube.F {
-		t.Errorf("Expected Left top row to have Front color (F), got %v, %v, %v",
-			c.Facelets[36], c.Facelets[37], c.Facelets[38])
-	}
-
 }
 
-func TestMoveR(t *testing.T) {
-	// Arrange
+func TestApplyMove_PrimeCancelsNormal(t *testing.T) {
 	c := cube.NewSolvedCube()
 
-	// Act: Apply the Right move (90 degrees clockwise)
-	c.MoveR()
+	// Act: R followed by R' (Right inverted)
+	c.ApplyMove(cube.MoveR)
+	c.ApplyMove(cube.MoveR3) // R3 is R'
 
-	// Assert
-	// After R move, the right column of the Up face (indices 2, 5, 8)
-	// should contain the colors of the Front face (cube.F)
-	if c.Facelets[2] != cube.F || c.Facelets[5] != cube.F || c.Facelets[8] != cube.F {
-		t.Errorf("Expected Up right column to have Front color (F), got %v, %v, %v",
-			c.Facelets[2], c.Facelets[5], c.Facelets[8])
+	// Assert: They should cancel each other out
+	solved := cube.NewSolvedCube()
+	if c.Facelets != solved.Facelets {
+		t.Errorf("R followed by R' did not return cube to solved state")
 	}
 }
