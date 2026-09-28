@@ -61,3 +61,50 @@ func NewSolvedCubieCube() *CubieCube {
 
 	return cc
 }
+
+// Multiply multiplies the current CubieCube (c) with another CubieCube (b).
+// In Kociemba's math, applying a move is multiplying the current state by a move state.
+func (c *CubieCube) Multiply(b *CubieCube) {
+	// Temporary arrays to hold the new state during calculation
+	var newCP [8]Corner
+	var newCO [8]byte
+	var newEP [12]Edge
+	var newEO [12]byte
+
+	// 1. Multiply Corners
+	for i := 0; i < 8; i++ {
+		// Permutation: apply b's permutation to c
+		newCP[i] = c.CP[b.CP[i]]
+
+		// Orientation: add orientations and modulo 3 (since corners have 3 states: 0, 1, 2)
+		// We get the old orientation from the corner that moved here, and add the new twist.
+		ori := c.CO[b.CP[i]] + b.CO[i]
+
+		// Handle standard edge cases in corner twists (Kociemba specific)
+		if ori >= 3 {
+			newCO[i] = ori - 3
+		} else {
+			newCO[i] = ori
+		}
+	}
+
+	// 2. Multiply Edges
+	for i := 0; i < 12; i++ {
+		// Permutation: apply b's permutation to c
+		newEP[i] = c.EP[b.EP[i]]
+
+		// Orientation: add orientations and modulo 2 (edges have 2 states: 0, 1)
+		ori := c.EO[b.EP[i]] + b.EO[i]
+		if ori >= 2 {
+			newEO[i] = ori - 2
+		} else {
+			newEO[i] = ori
+		}
+	}
+
+	// Apply the calculated state back to the current cube
+	c.CP = newCP
+	c.CO = newCO
+	c.EP = newEP
+	c.EO = newEO
+}

@@ -25,3 +25,47 @@ func TestNewSolvedCubieCube(t *testing.T) {
 			cc.EP[cube.UR], cc.EO[cube.UR])
 	}
 }
+
+func TestCubieCube_Multiply_SolvedBySolved(t *testing.T) {
+	// Arrange: Two completely solved cubes
+	c1 := cube.NewSolvedCubieCube()
+	c2 := cube.NewSolvedCubieCube()
+
+	// Act: Multiply c1 by c2 (c1 will store the result)
+	c1.Multiply(c2)
+
+	// Assert: It should still be perfectly solved
+	solved := cube.NewSolvedCubieCube()
+
+	for i := 0; i < 8; i++ {
+		if c1.CP[i] != solved.CP[i] || c1.CO[i] != solved.CO[i] {
+			t.Errorf("Corner %d changed after multiplying solved cubes", i)
+		}
+	}
+	for i := 0; i < 12; i++ {
+		if c1.EP[i] != solved.EP[i] || c1.EO[i] != solved.EO[i] {
+			t.Errorf("Edge %d changed after multiplying solved cubes", i)
+		}
+	}
+}
+
+func TestCubieCube_Multiply_U4TimesReturnsToSolved(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// We need the predefined U move from our basicCubieMoves.
+	// Note: We'll export a function later to access these, but for tests
+	// inside the same package, we can access package-level vars directly.
+
+	// Act: Apply U move 4 times using Multiply
+	c.Multiply(cube.MoveCubieU())
+	c.Multiply(cube.MoveCubieU())
+	c.Multiply(cube.MoveCubieU())
+	c.Multiply(cube.MoveCubieU())
+
+	// Assert
+	solved := cube.NewSolvedCubieCube()
+	if c.CP != solved.CP || c.EP != solved.EP {
+		t.Errorf("CubieCube did not return to solved state after U4")
+	}
+}
