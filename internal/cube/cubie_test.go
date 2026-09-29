@@ -49,19 +49,45 @@ func TestCubieCube_Multiply_SolvedBySolved(t *testing.T) {
 	}
 }
 
-func TestCubieCube_Multiply_U4TimesReturnsToSolved(t *testing.T) {
+func TestCubieCube_ApplyMove_PrimeCancelsNormal(t *testing.T) {
 	// Arrange
 	c := cube.NewSolvedCubieCube()
 
-	// We need the predefined U move from our basicCubieMoves.
-	// Note: We'll export a function later to access these, but for tests
-	// inside the same package, we can access package-level vars directly.
+	// Act: Apply R, then R' (Right inverted)
+	c.ApplyMove(cube.MoveR)
+	c.ApplyMove(cube.MoveR3) // MoveR3 is R'
 
-	// Act: Apply U move 4 times using Multiply
-	c.Multiply(cube.MoveCubieU())
-	c.Multiply(cube.MoveCubieU())
-	c.Multiply(cube.MoveCubieU())
-	c.Multiply(cube.MoveCubieU())
+	// Assert: Should be perfectly solved
+	solved := cube.NewSolvedCubieCube()
+	if c.CP != solved.CP || c.EP != solved.EP {
+		t.Errorf("R followed by R' did not return CubieCube to solved state")
+	}
+}
+
+func TestCubieCube_ApplyMove_DoubleMove(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// Act: Apply F2 twice (which equals 4 times F = 360 degrees)
+	c.ApplyMove(cube.MoveF2)
+	c.ApplyMove(cube.MoveF2)
+
+	// Assert
+	solved := cube.NewSolvedCubieCube()
+	if c.CP != solved.CP || c.CO != solved.CO {
+		t.Errorf("Applying F2 twice did not return cube to solved state")
+	}
+}
+
+func TestCubieCube_ApplyMove_U4TimesReturnsToSolved(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// Act: Apply U move 4 times using the universal ApplyMove method
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveU)
 
 	// Assert
 	solved := cube.NewSolvedCubieCube()

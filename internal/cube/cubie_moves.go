@@ -47,7 +47,34 @@ var basicCubieMoves = [6]*CubieCube{
 	},
 }
 
-// MoveCubieU returns the mathematical representation of the Up move.
-func MoveCubieU() *CubieCube {
-	return basicCubieMoves[0]
+// AllCubieMoves holds all 18 standard Kociemba moves at the cubie level.
+// It is dynamically populated on startup to save memory and avoid hardcoding.
+var AllCubieMoves [18]*CubieCube
+
+// init runs automatically when the cube package is loaded.
+// We use it to pre-calculate double (e.g., U2) and inverted (e.g., U') moves using math.
+func init() {
+	for i := 0; i < 6; i++ {
+		// Base move (clockwise, e.g., U, R, F, D, L, B)
+		move1 := basicCubieMoves[i]
+		AllCubieMoves[i*3] = move1
+
+		// Double move (e.g., U2) -> Multiply move1 by move1
+		move2 := NewSolvedCubieCube()
+		move2.Multiply(move1)
+		move2.Multiply(move1)
+		AllCubieMoves[i*3+1] = move2
+
+		// Inverse move (e.g., U') -> Multiply move2 by move1
+		move3 := NewSolvedCubieCube()
+		move3.Multiply(move2)
+		move3.Multiply(move1)
+		AllCubieMoves[i*3+2] = move3
+	}
+}
+
+// ApplyMove applies one of the 18 standard Kociemba moves to the CubieCube.
+// This is done by multiplying the current state with the pre-calculated move state.
+func (c *CubieCube) ApplyMove(m Move) {
+	c.Multiply(AllCubieMoves[m])
 }
