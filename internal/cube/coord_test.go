@@ -26,3 +26,24 @@ func TestCubieCube_Twist(t *testing.T) {
 		}
 	}
 }
+
+func TestCubieCube_Flip(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// 1. A solved cube should have a Flip coordinate of 0
+	if flip := c.GetFlip(); flip != 0 {
+		t.Errorf("Expected Flip 0 for a solved cube, got %d", flip)
+	}
+
+	// 2. Property-based testing: Set a flip, get it back, and check if it matches.
+	// The maximum value for Flip is 2^11 - 1 = 2047.
+	for expectedFlip := uint16(0); expectedFlip < 2048; expectedFlip++ {
+		c.SetFlip(expectedFlip)
+
+		actualFlip := c.GetFlip()
+		if actualFlip != expectedFlip {
+			t.Errorf("SetFlip(%d) but GetFlip() returned %d", expectedFlip, actualFlip)
+		}
+	}
+}
