@@ -12,12 +12,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@eef6142ac195e3b6d06904173eee30621b6b405e
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
+        uses: actions/setup-go@v5
         with:
           go-version: '1.26.8'
 
@@ -34,6 +34,6 @@ jobs:
             -Dsonar.sarifReportPaths=sonar.sarif
 
       - name: Upload SARIF file to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@c36674332c5bfec4e5ec8755a4e1e60299c37006
+        uses: github/codeql-action/upload-sarif@v3
         with:
           sarif_file: .scannerwork/sonar.sarif
