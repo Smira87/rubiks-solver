@@ -17,6 +17,7 @@ func TestCnk(t *testing.T) {
 		{n: 4, k: 0, expected: 1},
 		{n: 4, k: 4, expected: 1},
 		{n: 5, k: 2, expected: 10},
+		{n: 2, k: 4, expected: 0},
 	}
 
 	// Act & Assert
