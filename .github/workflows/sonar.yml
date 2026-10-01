@@ -1,28 +1,19 @@
-name: SonarCloud Analysis
-
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    types: [opened, synchronize, reopened]
-
 jobs:
   sonarcloud:
     name: SonarCloud Scan
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@eef6142ac195e3b6d06904173eee30621b6b405e
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@41dfa10bad2bb2ae585af6ee5bb4d7d973ad74ed
         with:
-          go-version: '1.22'
+          go-version: '1.26.8'
 
       - name: Run Tests with Coverage
-        # Generate clean test coverage report for SonarQube
         run: go test -v -coverprofile=coverage.out ./...
 
       - name: SonarCloud Scan
@@ -30,3 +21,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.sarifReportPaths=sonar.sarif
+
+      - name: Upload SARIF file to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@c36674332c5bfec4e5ec8755a4e1e60299c37006
+        with:
+          sarif_file: .scannerwork/sonar.sarif
