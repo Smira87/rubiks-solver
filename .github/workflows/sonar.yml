@@ -26,7 +26,7 @@ jobs:
         run: go test -v -coverprofile=coverage.out ./...
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@bfd4e558c74de3e7a3f9ec67bf170ee7976e5d84
+        uses: SonarSource/sonarqube-scan-action@v.5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
