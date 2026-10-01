@@ -33,7 +33,3 @@ jobs:
           args: >
             -Dsonar.sarifReportPaths=sonar.sarif
 
-      - name: Upload SARIF file to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: .scannerwork/sonar.sarif
