@@ -47,3 +47,24 @@ func TestCubieCube_Flip(t *testing.T) {
 		}
 	}
 }
+
+func TestCubieCube_UDSlice(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// 1. A solved cube should have a UDSlice coordinate of 0
+	if slice := c.GetUDSlice(); slice != 0 {
+		t.Errorf("Expected UDSlice 0 for a solved cube, got %d", slice)
+	}
+
+	// 2. Property-based testing: Set a slice coordinate, get it back, and check if it matches.
+	// The maximum value for UDSlice is C(12, 4) - 1 = 494.
+	for expectedSlice := uint16(0); expectedSlice < 495; expectedSlice++ {
+		c.SetUDSlice(expectedSlice)
+
+		actualSlice := c.GetUDSlice()
+		if actualSlice != expectedSlice {
+			t.Errorf("SetUDSlice(%d) but GetUDSlice() returned %d", expectedSlice, actualSlice)
+		}
+	}
+}
