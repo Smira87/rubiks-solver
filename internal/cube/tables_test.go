@@ -39,3 +39,29 @@ func TestPhase1MoveTables(t *testing.T) {
 		t.Errorf("UDSliceMove[0][F2] expected %d, got %d", expectedUDSlice, actual)
 	}
 }
+
+func TestPhase1PruningTables(t *testing.T) {
+	// Arrange: We need move tables generated first, because pruning relies on them.
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	// 1. Solved state (index 0) must have a distance of 0
+	if depth := cube.SliceTwistPrun[0]; depth != 0 {
+		t.Errorf("Expected SliceTwist distance 0 for solved state, got %d", depth)
+	}
+	if depth := cube.SliceFlipPrun[0]; depth != 0 {
+		t.Errorf("Expected SliceFlip distance 0 for solved state, got %d", depth)
+	}
+
+	// 2. Apply exactly 1 move (e.g., MoveF) to a solved state.
+	// The distance must become 1.
+	twistAfterF := cube.TwistMove[0][cube.MoveF]
+	sliceAfterF := cube.UDSliceMove[0][cube.MoveF]
+
+	// We map two coordinates (Slice and Twist) into a single 1D array index
+	indexF := int(sliceAfterF)*2187 + int(twistAfterF)
+
+	if depth := cube.SliceTwistPrun[indexF]; depth != 1 {
+		t.Errorf("Expected SliceTwist distance 1 after F move, got %d", depth)
+	}
+}
