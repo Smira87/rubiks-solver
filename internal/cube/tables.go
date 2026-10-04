@@ -70,29 +70,25 @@ func InitPruningTables() {
 	// 2. Generate SliceTwistPrun table
 	SliceTwistPrun[0] = 0 // The solved state is at distance 0
 	depth := int8(0)
-	done := 1 // We already found 1 state (the solved one)
+	done := 1
 
 	for done < len(SliceTwistPrun) {
-		for i := 0; i < len(SliceTwistPrun); i++ {
-			if SliceTwistPrun[i] == depth {
-				// Decompress 1D index back to 2D coordinates
-				slice := uint16(i / 2187)
-				twist := uint16(i % 2187)
+		index := 0 // We track the 1D index manually without division
+		for slice := uint16(0); slice < 495; slice++ {
+			for twist := uint16(0); twist < 2187; twist++ {
+				if SliceTwistPrun[index] == depth {
+					for m := Move(0); m < 18; m++ {
+						newSlice := UDSliceMove[slice][m]
+						newTwist := TwistMove[twist][m]
+						newIndex := int(newSlice)*2187 + int(newTwist)
 
-				// Apply all 18 moves
-				for m := Move(0); m < 18; m++ {
-					newSlice := UDSliceMove[slice][m]
-					newTwist := TwistMove[twist][m]
-
-					// Compress back to 1D index
-					newIndex := int(newSlice)*2187 + int(newTwist)
-
-					// If this state hasn't been visited yet, assign depth+1
-					if SliceTwistPrun[newIndex] == -1 {
-						SliceTwistPrun[newIndex] = depth + 1
-						done++
+						if SliceTwistPrun[newIndex] == -1 {
+							SliceTwistPrun[newIndex] = depth + 1
+							done++
+						}
 					}
 				}
+				index++ // Cheap addition instead of expensive division!
 			}
 		}
 		depth++
@@ -104,21 +100,22 @@ func InitPruningTables() {
 	done = 1
 
 	for done < len(SliceFlipPrun) {
-		for i := 0; i < len(SliceFlipPrun); i++ {
-			if SliceFlipPrun[i] == depth {
-				slice := uint16(i / 2048)
-				flip := uint16(i % 2048)
+		index := 0
+		for slice := uint16(0); slice < 495; slice++ {
+			for flip := uint16(0); flip < 2048; flip++ {
+				if SliceFlipPrun[index] == depth {
+					for m := Move(0); m < 18; m++ {
+						newSlice := UDSliceMove[slice][m]
+						newFlip := FlipMove[flip][m]
+						newIndex := int(newSlice)*2048 + int(newFlip)
 
-				for m := Move(0); m < 18; m++ {
-					newSlice := UDSliceMove[slice][m]
-					newFlip := FlipMove[flip][m]
-					newIndex := int(newSlice)*2048 + int(newFlip)
-
-					if SliceFlipPrun[newIndex] == -1 {
-						SliceFlipPrun[newIndex] = depth + 1
-						done++
+						if SliceFlipPrun[newIndex] == -1 {
+							SliceFlipPrun[newIndex] = depth + 1
+							done++
+						}
 					}
 				}
+				index++
 			}
 		}
 		depth++
