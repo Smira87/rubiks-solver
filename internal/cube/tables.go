@@ -73,7 +73,7 @@ func InitPruningTables() {
 	done := 1
 
 	for done < len(SliceTwistPrun) {
-		index := 0 // We track the 1D index manually without division
+		index := 0 // We track the 1D index manually
 		for slice := uint16(0); slice < 495; slice++ {
 			for twist := uint16(0); twist < 2187; twist++ {
 				if SliceTwistPrun[index] == depth {
@@ -88,7 +88,7 @@ func InitPruningTables() {
 						}
 					}
 				}
-				index++ // Cheap addition instead of expensive division!
+				index++
 			}
 		}
 		depth++
