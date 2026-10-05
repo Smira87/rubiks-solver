@@ -66,3 +66,38 @@ func TestSolvePhase1_ReturnsNilWhenMaxDepthExceeded(t *testing.T) {
 		t.Errorf("Expected nil because the path is longer than maxDepth, but got: %v", solution)
 	}
 }
+
+func TestSolvePhase1_Coverage_FlipDistanceGreater(t *testing.T) {
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	c := cube.NewSolvedCubieCube()
+
+	// Artificially mess up only the edges (Flip), leaving the corners (Twist) solved.
+	// This ensures that dist2 (edges) will be greater than dist1 (corners),
+	// allowing us to cover the line `minDist = dist2`.
+	c.SetFlip(500)
+
+	solver.SolvePhase1(c, 5)
+}
+
+func TestSolvePhase1_Coverage_LoopExhaustion(t *testing.T) {
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	c := cube.NewSolvedCubieCube()
+
+	// Create an artificial conflict of interest to cover the `return false` at the end of the loop.
+	// 1. Set corners to a state that is solved by 1 move of U.
+	c.SetTwist(cube.TwistMove[0][cube.MoveU])
+	// 2. Set edges to a state that is solved by 1 move of F.
+	c.SetFlip(cube.FlipMove[0][cube.MoveF])
+
+	// The heuristic (minDist) will say: "Oh, max distance = 1, let's enter the loop!".
+	// The algorithm will try move U (corners will be solved, but edges won't -> false).
+	// It will try move F (edges will be solved, but corners won't -> false).
+	// It will try the remaining 16 moves -> all false.
+	// The loop will exhaust, and the function will reach the final `return false`!
+
+	solver.SolvePhase1(c, 1)
+}
