@@ -43,3 +43,26 @@ func TestSolvePhase1(t *testing.T) {
 		t.Errorf("Phase 1 not solved: UDSlice is %d, expected 0", slice)
 	}
 }
+
+func TestSolvePhase1_ReturnsNilWhenMaxDepthExceeded(t *testing.T) {
+	// 1. Setup tables
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	// 2. Create a cube and scramble it well (5 moves)
+	c := cube.NewSolvedCubieCube()
+	c.ApplyMove(cube.MoveU)
+	c.ApplyMove(cube.MoveR)
+	c.ApplyMove(cube.MoveF)
+	c.ApplyMove(cube.MoveD)
+	c.ApplyMove(cube.MoveL)
+
+	// 3. Set an unrealistic goal: solve it in 2 moves maximum
+	maxDepth := int8(2)
+	solution := solver.SolvePhase1(c, maxDepth)
+
+	// 4. Verify that nil is returned
+	if solution != nil {
+		t.Errorf("Expected nil because the path is longer than maxDepth, but got: %v", solution)
+	}
+}
