@@ -110,3 +110,55 @@ func (c *CubieCube) SetUDSlice(slice uint16) {
 		}
 	}
 }
+
+// factorials is used for computing Lehmer codes (lexicographical indexing) of permutations.
+var factorials = [8]int{1, 1, 2, 6, 24, 120, 720, 5040}
+
+// GetCPerm calculates the corner permutation coordinate (0 to 40319) using Lehmer code.
+func (c *CubieCube) GetCPerm() uint16 {
+	idx := 0
+
+	// For each corner, count how many of the remaining corners to its right are smaller.
+	for i := 0; i < 7; i++ {
+		count := 0
+		for j := i + 1; j < 8; j++ {
+			if c.CP[j] < c.CP[i] {
+				count++
+			}
+		}
+		// Multiply the count by the corresponding factorial base
+		idx += count * factorials[7-i]
+	}
+
+	return uint16(idx)
+}
+
+// SetCPerm applies a given corner permutation coordinate (0 to 40319) to the CubieCube.
+func (c *CubieCube) SetCPerm(idx uint16) {
+	val := int(idx)
+	var counts [8]int
+
+	// 1. Extract the factorial base digits
+	for i := 0; i < 7; i++ {
+		fact := factorials[7-i]
+		counts[i] = val / fact
+		val %= fact
+	}
+
+	// 2. Create a list of available corners (0 to 7)
+	var available [8]Corner
+	for i := 0; i < 8; i++ {
+		available[i] = Corner(i)
+	}
+
+	// 3. Reconstruct the permutation
+	for i := 0; i < 8; i++ {
+		k := counts[i]
+		c.CP[i] = available[k]
+
+		// Remove the used corner by shifting the remaining elements to the left
+		for j := k; j < 7; j++ {
+			available[j] = available[j+1]
+		}
+	}
+}

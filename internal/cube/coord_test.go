@@ -68,3 +68,24 @@ func TestCubieCube_UDSlice(t *testing.T) {
 		}
 	}
 }
+
+func TestCubieCube_CPerm(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// 1. A solved cube should have a CPerm coordinate of 0
+	if cperm := c.GetCPerm(); cperm != 0 {
+		t.Errorf("Expected CPerm 0 for a solved cube, got %d", cperm)
+	}
+
+	// 2. Property-based testing: Set a permutation, get it back, and check if it matches.
+	// The maximum value for Corner Permutation is 8! - 1 = 40319.
+	for expectedCPerm := uint16(0); expectedCPerm < 40320; expectedCPerm++ {
+		c.SetCPerm(expectedCPerm)
+
+		actualCPerm := c.GetCPerm()
+		if actualCPerm != expectedCPerm {
+			t.Errorf("SetCPerm(%d) but GetCPerm() returned %d", expectedCPerm, actualCPerm)
+		}
+	}
+}
