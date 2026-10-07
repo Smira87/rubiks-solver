@@ -1,5 +1,7 @@
 package cube
 
+import "sync"
+
 // Corner represents the 8 corners of the cube.
 type Corner byte
 
@@ -94,4 +96,42 @@ func (c *CubieCube) Multiply(b *CubieCube) {
 	c.CO = newCO
 	c.EP = newEP
 	c.EO = newEO
+}
+
+// cubiePool is a thread-safe object pool to prevent memory allocations
+// during massive table generation.
+var cubiePool = sync.Pool{
+	New: func() interface{} {
+		// When the pool is empty, it creates a new empty cube
+		return &CubieCube{}
+	},
+}
+
+// GetPooledCubie returns a solved CubieCube from the pool.
+func GetPooledCubie() *CubieCube {
+	// Grab a cube from the pool (type assertion is needed)
+	c := cubiePool.Get().(*CubieCube)
+
+	// CRITICAL: We must reset it to the solved state,
+	// because it might contain garbage from previous use!
+	c.ResetToSolved()
+	return c
+}
+
+// ReleaseCubie returns the cube back to the pool for reuse.
+func ReleaseCubie(c *CubieCube) {
+	cubiePool.Put(c)
+}
+
+// ResetToSolved resets the current CubieCube to the perfectly solved state
+// without allocating any new memory.
+func (c *CubieCube) ResetToSolved() {
+	for i := 0; i < 8; i++ {
+		c.CP[i] = Corner(i)
+		c.CO[i] = 0
+	}
+	for i := 0; i < 12; i++ {
+		c.EP[i] = Edge(i)
+		c.EO[i] = 0
+	}
 }

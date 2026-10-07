@@ -21,30 +21,39 @@ func InitMoveTables() {
 	// 1. Generate Twist Move Table
 	for i := uint16(0); i < 2187; i++ {
 		for m := Move(0); m < 18; m++ {
-			c := NewSolvedCubieCube()
+			c := GetPooledCubie() // Take from pool
+
 			c.SetTwist(i)
 			c.ApplyMove(m)
 			TwistMove[i][m] = c.GetTwist()
+
+			ReleaseCubie(c) // Return to pool!
 		}
 	}
 
 	// 2. Generate Flip Move Table
 	for i := uint16(0); i < 2048; i++ {
 		for m := Move(0); m < 18; m++ {
-			c := NewSolvedCubieCube()
+			c := GetPooledCubie()
+
 			c.SetFlip(i)
 			c.ApplyMove(m)
 			FlipMove[i][m] = c.GetFlip()
+
+			ReleaseCubie(c)
 		}
 	}
 
 	// 3. Generate UDSlice Move Table
 	for i := uint16(0); i < 495; i++ {
 		for m := Move(0); m < 18; m++ {
-			c := NewSolvedCubieCube()
+			c := GetPooledCubie()
+
 			c.SetUDSlice(i)
 			c.ApplyMove(m)
 			UDSliceMove[i][m] = c.GetUDSlice()
+
+			ReleaseCubie(c)
 		}
 	}
 }
