@@ -162,3 +162,54 @@ func (c *CubieCube) SetCPerm(idx uint16) {
 		}
 	}
 }
+
+// GetEPerm calculates the Phase 2 edge permutation coordinate (0 to 40319).
+// It specifically calculates the permutation of the 8 Up/Down edges.
+func (c *CubieCube) GetEPerm() uint16 {
+	idx := 0
+
+	// Similar to corners, we count smaller elements to the right.
+	// We only process the first 8 edges (indices 0 to 7).
+	for i := 0; i < 7; i++ {
+		count := 0
+		for j := i + 1; j < 8; j++ {
+			if c.EP[j] < c.EP[i] {
+				count++
+			}
+		}
+		idx += count * factorials[7-i]
+	}
+
+	return uint16(idx)
+}
+
+// SetEPerm applies a given Phase 2 edge permutation coordinate (0 to 40319) to the CubieCube.
+// Note: This only affects the first 8 edges. The slice edges are ignored here.
+func (c *CubieCube) SetEPerm(idx uint16) {
+	val := int(idx)
+	var counts [8]int
+
+	// 1. Extract the factorial base digits
+	for i := 0; i < 7; i++ {
+		fact := factorials[7-i]
+		counts[i] = val / fact
+		val %= fact
+	}
+
+	// 2. Create a list of available Phase 2 edges (0 to 7)
+	var available [8]Edge
+	for i := 0; i < 8; i++ {
+		available[i] = Edge(i)
+	}
+
+	// 3. Reconstruct the permutation
+	for i := 0; i < 8; i++ {
+		k := counts[i]
+		c.EP[i] = available[k]
+
+		// Remove the used edge by shifting
+		for j := k; j < 7; j++ {
+			available[j] = available[j+1]
+		}
+	}
+}

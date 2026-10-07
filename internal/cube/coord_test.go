@@ -89,3 +89,25 @@ func TestCubieCube_CPerm(t *testing.T) {
 		}
 	}
 }
+
+func TestCubieCube_EPerm(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// 1. A solved cube should have an EPerm coordinate of 0
+	if eperm := c.GetEPerm(); eperm != 0 {
+		t.Errorf("Expected EPerm 0 for a solved cube, got %d", eperm)
+	}
+
+	// 2. Property-based testing: Set an EPerm coordinate, get it back, and check if it matches.
+	// The maximum value for EPerm is 8! - 1 = 40319.
+	// This covers the permutations of the 8 U/D layer edges.
+	for expectedEPerm := uint16(0); expectedEPerm < 40320; expectedEPerm++ {
+		c.SetEPerm(expectedEPerm)
+
+		actualEPerm := c.GetEPerm()
+		if actualEPerm != expectedEPerm {
+			t.Errorf("SetEPerm(%d) but GetEPerm() returned %d", expectedEPerm, actualEPerm)
+		}
+	}
+}
