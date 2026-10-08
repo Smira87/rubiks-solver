@@ -1,5 +1,7 @@
 package cube
 
+// Phase 1 Move Tables
+
 // TwistMove caches the transition for the corner orientation coordinate.
 // First index is the Twist value (0-2186), second is the Move (0-17).
 var TwistMove [2187][18]uint16
@@ -11,6 +13,17 @@ var FlipMove [2048][18]uint16
 // UDSliceMove caches the transition for the UD-slice coordinate.
 // First index is the UDSlice value (0-494), second is the Move (0-17).
 var UDSliceMove [495][18]uint16
+
+// Phase 2 Move Tables
+
+// CPermMove caches the transition of the corner permutation coordinate (40320 states).
+var CPermMove [40320][18]uint16
+
+// EPermMove caches the transition of the edge permutation coordinate (40320 states).
+var EPermMove [40320][18]uint16
+
+// MPermMove caches the transition of the middle slice permutation coordinate (24 states).
+var MPermMove [24][18]uint16
 
 // InitMoveTables pre-calculates the transition tables for Phase 1.
 // It must be called once when the application starts.
@@ -53,6 +66,39 @@ func InitMoveTables() {
 			c.ApplyMove(m)
 			UDSliceMove[i][m] = c.GetUDSlice()
 
+			ReleaseCubie(c)
+		}
+	}
+
+	// 4. Generate CPerm Move Table (40320 states)
+	for i := uint16(0); i < 40320; i++ {
+		for m := Move(0); m < 18; m++ {
+			c := GetPooledCubie()
+			c.SetCPerm(i)
+			c.ApplyMove(m)
+			CPermMove[i][m] = c.GetCPerm()
+			ReleaseCubie(c)
+		}
+	}
+
+	// 5. Generate EPerm Move Table (40320 states)
+	for i := uint16(0); i < 40320; i++ {
+		for m := Move(0); m < 18; m++ {
+			c := GetPooledCubie()
+			c.SetEPerm(i)
+			c.ApplyMove(m)
+			EPermMove[i][m] = c.GetEPerm()
+			ReleaseCubie(c)
+		}
+	}
+
+	// 6. Generate MPerm Move Table (24 states)
+	for i := uint16(0); i < 24; i++ {
+		for m := Move(0); m < 18; m++ {
+			c := GetPooledCubie()
+			c.SetMPerm(i)
+			c.ApplyMove(m)
+			MPermMove[i][m] = c.GetMPerm()
 			ReleaseCubie(c)
 		}
 	}

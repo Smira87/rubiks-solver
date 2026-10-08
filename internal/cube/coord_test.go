@@ -111,3 +111,25 @@ func TestCubieCube_EPerm(t *testing.T) {
 		}
 	}
 }
+
+func TestCubieCube_MPerm(t *testing.T) {
+	// Arrange
+	c := cube.NewSolvedCubieCube()
+
+	// 1. A solved cube should have an MPerm coordinate of 0
+	if mperm := c.GetMPerm(); mperm != 0 {
+		t.Errorf("Expected MPerm 0 for a solved cube, got %d", mperm)
+	}
+
+	// 2. Property-based testing: Set an MPerm coordinate, get it back.
+	// The maximum value for MPerm is 4! - 1 = 23.
+	// This covers the permutations of the 4 equatorial slice edges (FR, FL, BL, BR).
+	for expectedMPerm := uint16(0); expectedMPerm < 24; expectedMPerm++ {
+		c.SetMPerm(expectedMPerm)
+
+		actualMPerm := c.GetMPerm()
+		if actualMPerm != expectedMPerm {
+			t.Errorf("SetMPerm(%d) but GetMPerm() returned %d", expectedMPerm, actualMPerm)
+		}
+	}
+}

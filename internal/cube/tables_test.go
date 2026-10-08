@@ -65,3 +65,36 @@ func TestPhase1PruningTables(t *testing.T) {
 		t.Errorf("Expected SliceTwist distance 1 after F move, got %d", depth)
 	}
 }
+
+func TestPhase2MoveTables(t *testing.T) {
+	// Arrange: Initialize tables
+	cube.InitMoveTables()
+
+	// 1. Test CPerm Move Table
+	c1 := cube.NewSolvedCubieCube()
+	c1.ApplyMove(cube.MoveR2) // R2 is a valid Phase 2 move
+	expectedCPerm := c1.GetCPerm()
+
+	if actual := cube.CPermMove[0][cube.MoveR2]; actual != expectedCPerm {
+		t.Errorf("CPermMove[0][R2] expected %d, got %d", expectedCPerm, actual)
+	}
+
+	// 2. Test EPerm Move Table
+	c2 := cube.NewSolvedCubieCube()
+	c2.ApplyMove(cube.MoveU) // U is a valid Phase 2 move
+	expectedEPerm := c2.GetEPerm()
+
+	if actual := cube.EPermMove[0][cube.MoveU]; actual != expectedEPerm {
+		t.Errorf("EPermMove[0][U] expected %d, got %d", expectedEPerm, actual)
+	}
+
+	// 3. Test MPerm Move Table
+	c3 := cube.NewSolvedCubieCube()
+	// To affect the middle layer, we need a move like R2, L2, F2, or B2.
+	c3.ApplyMove(cube.MoveF2)
+	expectedMPerm := c3.GetMPerm()
+
+	if actual := cube.MPermMove[0][cube.MoveF2]; actual != expectedMPerm {
+		t.Errorf("MPermMove[0][F2] expected %d, got %d", expectedMPerm, actual)
+	}
+}

@@ -213,3 +213,55 @@ func (c *CubieCube) SetEPerm(idx uint16) {
 		}
 	}
 }
+
+// GetMPerm calculates the Phase 2 middle slice permutation coordinate (0 to 23).
+// It tracks the permutation of the 4 equatorial edges (FR, FL, BL, BR) which are at indices 8..11.
+func (c *CubieCube) GetMPerm() uint16 {
+	idx := 0
+
+	// We only process the 4 slice edges (indices 8, 9, 10).
+	// The 12th edge (index 11) is skipped because it's determined by the others.
+	for i := 8; i < 11; i++ {
+		count := 0
+		for j := i + 1; j < 12; j++ {
+			if c.EP[j] < c.EP[i] {
+				count++
+			}
+		}
+		// factorials[11-i] correctly maps to: 3! for i=8, 2! for i=9, 1! for i=10
+		idx += count * factorials[11-i]
+	}
+
+	return uint16(idx)
+}
+
+// SetMPerm applies a given Phase 2 middle slice permutation coordinate (0 to 23) to the CubieCube.
+func (c *CubieCube) SetMPerm(idx uint16) {
+	val := int(idx)
+	var counts [4]int
+
+	// 1. Extract the factorial base digits
+	// We need 3 digits (for 3!, 2!, 1!)
+	for i := 0; i < 3; i++ {
+		fact := factorials[3-i]
+		counts[i] = val / fact
+		val %= fact
+	}
+
+	// 2. Create a list of available Phase 2 slice edges
+	// These are FR (8), FL (9), BL (10), BR (11)
+	available := [4]Edge{FR, FL, BL, BR}
+
+	// 3. Reconstruct the permutation
+	for i := 0; i < 4; i++ {
+		k := counts[i]
+
+		// The slice edges live at indices 8, 9, 10, 11
+		c.EP[8+i] = available[k]
+
+		// Remove the used edge by shifting
+		for j := k; j < 3; j++ {
+			available[j] = available[j+1]
+		}
+	}
+}
