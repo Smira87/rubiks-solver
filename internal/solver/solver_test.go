@@ -101,3 +101,44 @@ func TestSolvePhase1_Coverage_LoopExhaustion(t *testing.T) {
 
 	solver.SolvePhase1(c, 1)
 }
+
+func TestSolvePhase1_ComplexScramble(t *testing.T) {
+	// Arrange
+	// Note: sync.Once could be used here to avoid re-initializing tables in every test,
+	// but for now, re-initializing is fine and keeps tests isolated.
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	c := cube.NewSolvedCubieCube()
+
+	// A complex 10-move scramble
+	scramble := []cube.Move{
+		cube.MoveF2, cube.MoveR, cube.MoveU2, cube.MoveB2, cube.MoveL,
+		cube.MoveD, cube.MoveR2, cube.MoveF, cube.MoveU3, cube.MoveL,
+	}
+
+	for _, m := range scramble {
+		c.ApplyMove(m)
+	}
+
+	// Act: Max Phase 1 depth is theoretically 12 for Kociemba.
+	// We give it a limit of 12 moves to find the shortest path back to G1 group.
+	solution := solver.SolvePhase1(c, 12)
+
+	// Assert
+	if solution == nil {
+		t.Fatalf("Solver failed to find a Phase 1 solution for a 10-move scramble")
+	}
+
+	t.Logf("Found Phase 1 solution in %d moves: %v", len(solution), solution)
+
+	// Verify solution actually works
+	for _, move := range solution {
+		c.ApplyMove(move)
+	}
+
+	if c.GetTwist() != 0 || c.GetFlip() != 0 || c.GetUDSlice() != 0 {
+		t.Errorf("Cube did not reach Phase 1 target state! Twist: %d, Flip: %d, UDSlice: %d",
+			c.GetTwist(), c.GetFlip(), c.GetUDSlice())
+	}
+}

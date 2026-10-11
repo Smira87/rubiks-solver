@@ -25,8 +25,21 @@ var EPermMove [40320][18]uint16
 // MPermMove caches the transition of the middle slice permutation coordinate (24 states).
 var MPermMove [24][18]uint16
 
-// InitMoveTables pre-calculates the transition tables for Phase 1.
-// It must be called once when the application starts.
+// MCPermPrun is the pruning table for Phase 2 combining MPerm and CPerm.
+// It contains 24 * 40320 states.
+var MCPermPrun [24 * 40320]int8
+
+// MEPermPrun is the pruning table for Phase 2 combining MPerm and EPerm.
+// It contains 24 * 40320 states.
+var MEPermPrun [24 * 40320]int8
+
+// Phase2Moves contains the 10 allowable moves in the G1 group.
+// Using any other move would destroy the Phase 1 properties.
+var Phase2Moves = []Move{
+	MoveU, MoveU2, MoveU3,
+	MoveD, MoveD2, MoveD3,
+	MoveR2, MoveL2, MoveF2, MoveB2,
+}
 
 // InitMoveTables pre-calculates the transition tables for Phase 1.
 // It must be called once when the application starts.
@@ -171,6 +184,66 @@ func InitPruningTables() {
 					}
 				}
 				index++
+			}
+		}
+		depth++
+	}
+
+	// 4. Initialize Phase 2 tables to -1
+	for i := 0; i < len(MCPermPrun); i++ {
+		MCPermPrun[i] = -1
+		MEPermPrun[i] = -1
+	}
+
+	// 5. Generate MCPermPrun table
+	MCPermPrun[0] = 0
+	depth = int8(0)
+	done = 1
+
+	for done < len(MCPermPrun) {
+		for i := 0; i < len(MCPermPrun); i++ {
+			if MCPermPrun[i] == depth {
+				mPerm := uint16(i / 40320)
+				cPerm := uint16(i % 40320)
+
+				// ONLY use Phase 2 moves!
+				for _, m := range Phase2Moves {
+					newMPerm := MPermMove[mPerm][m]
+					newCPerm := CPermMove[cPerm][m]
+					newIndex := int(newMPerm)*40320 + int(newCPerm)
+
+					if MCPermPrun[newIndex] == -1 {
+						MCPermPrun[newIndex] = depth + 1
+						done++
+					}
+				}
+			}
+		}
+		depth++
+	}
+
+	// 6. Generate MEPermPrun table
+	MEPermPrun[0] = 0
+	depth = int8(0)
+	done = 1
+
+	for done < len(MEPermPrun) {
+		for i := 0; i < len(MEPermPrun); i++ {
+			if MEPermPrun[i] == depth {
+				mPerm := uint16(i / 40320)
+				ePerm := uint16(i % 40320)
+
+				// ONLY use Phase 2 moves!
+				for _, m := range Phase2Moves {
+					newMPerm := MPermMove[mPerm][m]
+					newEPerm := EPermMove[ePerm][m]
+					newIndex := int(newMPerm)*40320 + int(newEPerm)
+
+					if MEPermPrun[newIndex] == -1 {
+						MEPermPrun[newIndex] = depth + 1
+						done++
+					}
+				}
 			}
 		}
 		depth++

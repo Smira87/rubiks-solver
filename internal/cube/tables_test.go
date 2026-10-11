@@ -98,3 +98,29 @@ func TestPhase2MoveTables(t *testing.T) {
 		t.Errorf("MPermMove[0][F2] expected %d, got %d", expectedMPerm, actual)
 	}
 }
+
+func TestPhase2PruningTables(t *testing.T) {
+	// Arrange
+	cube.InitMoveTables()
+	cube.InitPruningTables()
+
+	// 1. Solved state must have a distance of 0
+	if depth := cube.MCPermPrun[0]; depth != 0 {
+		t.Errorf("Expected MCPerm distance 0 for solved state, got %d", depth)
+	}
+	if depth := cube.MEPermPrun[0]; depth != 0 {
+		t.Errorf("Expected MEPerm distance 0 for solved state, got %d", depth)
+	}
+
+	// 2. Apply exactly 1 valid Phase 2 move (e.g., MoveU) to a solved state.
+	// The distance must become 1.
+	cPermAfterU := cube.CPermMove[0][cube.MoveU]
+	mPermAfterU := cube.MPermMove[0][cube.MoveU]
+
+	// Index formula: MPerm * 40320 + CPerm
+	indexU := int(mPermAfterU)*40320 + int(cPermAfterU)
+
+	if depth := cube.MCPermPrun[indexU]; depth != 1 {
+		t.Errorf("Expected MCPerm distance 1 after U move, got %d", depth)
+	}
+}
