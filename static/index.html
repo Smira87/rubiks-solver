@@ -18,7 +18,10 @@
         <h2>Go Kociemba Solver (WASM)</h2>
         <div id="status">Loading WASM Engine (Generating Tables)...</div>
         
+        <!-- Добавляем тег label, связанный с инпутом через атрибут for -->
+        <label for="scramble">Scramble Formula:</label>
         <input type="text" id="scramble" value="U R F2 U' D L2 B'" placeholder="e.g., R U F2">
+        
         <button id="solveBtn" disabled>Solve</button>
         
         <div id="result"></div>
