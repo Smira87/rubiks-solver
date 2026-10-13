@@ -4,7 +4,7 @@ const go = new Go();
 WebAssembly.instantiateStreaming(fetch("solver.wasm"), go.importObject).then((result) => {
     go.run(result.instance); 
     
-    document.getElementById("status").innerText = "Engine Ready 🚀";
+    document.getElementById("status").innerText = "Morse Code ..- ._📟";
     document.getElementById("status").style.color = "#4CAF50";
     document.getElementById("solveBtn").disabled = false;
 }).catch(err => {
