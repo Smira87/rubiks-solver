@@ -5,7 +5,7 @@ WebAssembly.instantiateStreaming(fetch("solver.wasm"), go.importObject).then((re
     go.run(result.instance); 
     
     document.getElementById("status").innerText = "Morse Code ..- ._ 📟";
-    document.getElementById("status").style.color = "#4CAF5";
+    document.getElementById("status").style.color = "#ff9800";
     document.getElementById("solveBtn").disabled = false;
 }).catch(err => {
     console.error("❌ Failed to load WASM:", err);
