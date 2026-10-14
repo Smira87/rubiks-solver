@@ -24,7 +24,7 @@ renderer.setPixelRatio(window.devicePixelRatio);
 container.appendChild(renderer.domElement);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-camera.position.set(6, 5, 8);
+camera.position.set(4.2, 3.5, 5.5);
 camera.lookAt(0, 0, 0);
 
 // OrbitControls (Mouse drag)
@@ -32,6 +32,7 @@ const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
 controls.dampingFactor = 0.05;
+controls.enableZoom = false;
 
 function resizeCanvas() {
     const width = container.clientWidth;
