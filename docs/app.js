@@ -6,7 +6,7 @@ WebAssembly.instantiateStreaming(fetch("solver.wasm"), go.importObject).then((re
     go.run(result.instance); 
     
     document.getElementById("status").innerText = "Morse Code ..- ._ 📟";
-    document.getElementById("status").style.color = "#4CAF50";
+    document.getElementById("status").style.color = "#ff9800";
     document.getElementById("solveBtn").disabled = false;
     console.log("✅ WASM Engine loaded successfully!");
 }).catch(err => {
