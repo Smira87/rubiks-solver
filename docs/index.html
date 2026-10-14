@@ -168,7 +168,7 @@
             #3d-container {
                 position: relative;
                 width: 100vw;
-                flex: 1; /* Pushes everything below strictly to the bottom */
+                flex: 1; /* Allows 3D scene to shrink automatically if needed */
                 left: 0;
                 right: 0;
                 top: 0;
@@ -179,6 +179,7 @@
                 display: none !important;
             }
 
+            /* Container wrapping control elements as a single flowing block at the bottom */
             .panel {
                 position: relative;
                 width: 100vw;
@@ -188,6 +189,7 @@
                 -webkit-backdrop-filter: none;
                 overflow: hidden;
                 background: #1c1c24;
+                flex-shrink: 0; /* Prevents the dashboard from being squeezed */
             }
 
             #left-panel {
@@ -202,10 +204,13 @@
                 width: 100%;
             }
             
+            /* Max-height caps the solution box growth, forcing text to wrap and overflow nicely upward */
             #result-box {
                 margin-top: 0.4rem;
                 padding: 0.6rem;
                 min-height: 38px;
+                max-height: 80px; /* Limits size expansion on tiny devices */
+                overflow-y: auto;
                 font-size: 0.85rem;
                 margin-bottom: 0.4rem;
                 width: 100%;
@@ -226,15 +231,15 @@
                 font-size: 0.9rem;
                 padding: 0.5rem 0;
                 border-radius: 4px;
+                margin-bottom: 0;
             }
 
-            /* Perfect centering and full width layout constraints fixed */
             .mobile-action-row {
                 display: flex;
                 gap: 8px;
-                padding: 0.2rem 0 0.4rem 0; /* Cleared side paddings to align with inputs */
+                padding: 0.2rem 0 0.4rem 0;
                 background: #1c1c24;
-                width: 100%; /* Changed from 100vw to prevent right-shifting */
+                width: 100%;
             }
             .mobile-action-row button {
                 flex: 1;
