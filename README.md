@@ -1,9 +1,123 @@
-             |U1 U2 U3|
-             |U4 U5 U6|
-             |U7 U8 U9|
-    |L1 L2 L3|F1 F2 F3|R1 R2 R3|B1 B2 B3|
-    |L4 L5 L6|F4 F5 F6|R4 R5 R6|B4 B5 B6|
-    |L7 L8 L9|F7 F8 F9|R7 R8 R9|B7 B8 B9|
-             |D1 D2 D3|
-             |D4 D5 D6|
-             |D7 D8 D9|
+# 🧩 Rubik's Cube 3D Solver
+
+An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performance solver built with **Go (Golang)** and compiled to **WebAssembly (WASM)**. The front-end leverages **Three.js** for seamless, hardware-accelerated 3D rendering and smooth animations.
+
+🚀 **Live Demo:** [Deploy on GitHub Pages](https://super-morse.github.io/rubiks-solver/)
+
+---
+
+## 📸 Demo & Interface
+
+## 📸 Demo & Interface
+
+<details open>
+<summary><b>Click to expand live animations</b></summary>
+<br>
+
+<div align="center">
+  <table border="0">
+    <tr>
+      <td align="center" valign="top" width="60%">
+        <b>🖥️ Desktop Full-Width View</b><br><br>
+        <img src="desktop-demo.gif" alt="Desktop Web Demo" width="100%" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"/>
+      </td>
+      <td align="center" valign="top" width="35%">
+        <b>📱 Mobile View (Samsung A16)</b><br><br>
+        <img src="mobile-demo.gif" alt="Mobile Web Demo" width="100%" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"/>
+      </td>
+    </tr>
+  </table>
+</div>
+
+</details>
+
+
+## ✨ Features
+
+- **Two-Phase Kociemba Algorithm:** Implements an optimized version of Herbert Kociemba's algorithm in pure Go, resolving complex scrambles within milliseconds.
+- **Pure Client-Side Execution:** Zero server-side overhead. Heavy algorithmic processing runs natively in the browser via compiled WebAssembly binary.
+- **Hardware-Accelerated 3D View:** Smooth cube rotations, orbital controls, and face turn animations powered by Three.js.
+- **Advanced Mobile UX:** Responsive layouts designed to lock action panels on the viewport floor. Fully optimized for small displays like iPhone SE.
+- **Manual & Automated Controls:** Supports standard notation face rotations (`U`, `D`, `R`, `L`, `F`, `B`) manually, random scaffolding scrambler, and instant macro-solving routines.
+
+---
+
+## 🛠️ Technical Stack & Architecture
+
+- **Backend / Engine:** Go (Golang)
+- **Compilation Target:** WebAssembly (`GOOS=js GOARCH=wasm`)
+- **Frontend Core:** JavaScript (ES6+), Three.js (WebGL), OrbitControls
+- **Testing Architecture:** 100% statement coverage via targeted unit testing and structural pruning bypasses.
+
+```text
+       ┌────────────────────────┐
+       │   Browser / Web UI     │ ◄─── HTML5 / CSS3 / Three.js
+       └───────────┬────────────┘
+                   │
+                   ▼ (JavaScript Interop API)
+       ┌────────────────────────┐
+       │   WebAssembly (WASM)   │ ◄─── Compiled from Go Source
+       └───────────┬────────────┘
+                   │
+                   ▼
+       ┌────────────────────────┐
+       │ Kociemba Solver Engine │ ◄─── Pre-computed Pruning Tables
+       └────────────────────────┘
+```
+
+---
+
+## 🚀 Local Development Setup
+
+Follow these steps to run the environment locally:
+
+### 1. Clone the repository
+```bash
+git clone https://github.com
+cd rubiks-solver
+```
+
+### 2. Build the WebAssembly binary
+Ensure you have Go installed on your system. Compile the package target to the static deployment directory:
+```bash
+GOOS=js GOARCH=wasm go build -o docs/solver.wasm ./cmd/wasm/main.go
+```
+
+### 3. Launch local static server
+WebAssembly cannot run directly via the `file://` protocol due to browser CORS policies. Boot up a lightweight static local server:
+
+Using **Python 3**:
+```bash
+python3 -m http.server 8080 --directory docs
+```
+
+Using **Node.js**:
+```bash
+npx serve docs
+```
+
+Open up your browser and navigate to `http://localhost:8080`.
+
+---
+
+## 🧪 Testing & Code Coverage
+
+The logical implementation maintains strict safety constraints, completely avoiding regressive failures during table indexing. To execute the automated testing suit with code metrics tracking:
+
+```bash
+go test -coverprofile=cover.out ./internal/solver
+go tool cover -func=cover.out
+```
+
+**Output Result:**
+```text
+ok      rubiks-solver/internal/solver   3.773s  coverage: 100.0% of statements
+```
+
+---
+
+## 💡 Algorithmic Trade-offs (SRE Note)
+
+The engine implements Kociemba's Two-Phase heuristic search mapping coordinate spaces into sub-groups rather than raw element pieces. 
+
+To prevent multi-second UI main thread stumbles inside a standard browser runtime environment, the iteration relies on a **First-Available Solution Transition strategy**. This design guarantees near-instantaneous query updates (**~40ms**) across deep scrambles by making an engineering compromise: sacrificing perfect move optimization on ultra-short sequences (1-2 moves) in favor of high performance under real-world usage.
