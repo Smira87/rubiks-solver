@@ -165,21 +165,23 @@
                 height: -webkit-fill-available;
             }
             
+            /* 1. Lock the 3D cube zone at exactly 40% height so it never pushes down */
             #3d-container {
                 position: relative;
                 width: 100vw;
-                flex: 1; /* Allows 3D scene to shrink automatically if needed */
+                height: 40vh; 
+                flex: none;
                 left: 0;
                 right: 0;
                 top: 0;
-                height: auto;
+                bottom: auto;
             }
             
             #left-panel h2, #right-panel h3, #right-panel p, .desktop-only {
                 display: none !important;
             }
 
-            /* Container wrapping control elements as a single flowing block at the bottom */
+            /* 2. Control panel takes exactly the remaining 60% with absolute structure */
             .panel {
                 position: relative;
                 width: 100vw;
@@ -189,47 +191,59 @@
                 -webkit-backdrop-filter: none;
                 overflow: hidden;
                 background: #1c1c24;
-                flex-shrink: 0; /* Prevents the dashboard from being squeezed */
+                flex: none;
             }
 
+            /* 3. Tighten margins to make sure everything fits iPhone SE */
             #left-panel {
-                padding: 0.6rem 1rem 0 1rem;
+                padding: 0.4rem 1rem 0 1rem;
                 border: none;
             }
             
+            #status {
+                margin-bottom: 0.2rem;
+                font-size: 0.8rem;
+            }
+
+            label {
+                margin-bottom: 0.2rem;
+            }
+
             input {
-                padding: 0.5rem 0.7rem;
-                margin-bottom: 0.4rem;
-                font-size: 0.9rem;
+                padding: 0.4rem 0.6rem;
+                margin-bottom: 0.2rem;
+                font-size: 0.85rem;
                 width: 100%;
             }
             
-            /* Max-height caps the solution box growth, forcing text to wrap and overflow nicely upward */
+            /* 4. Strictly limit solution box height. Any extra text forces an internal scroll */
             #result-box {
-                margin-top: 0.4rem;
-                padding: 0.6rem;
-                min-height: 38px;
-                max-height: 80px; /* Limits size expansion on tiny devices */
+                margin-top: 0.2rem;
+                padding: 0.5rem;
+                min-height: 35px;
+                max-height: 55px; /* Rigid constraint prevents pushing buttons down */
                 overflow-y: auto;
-                font-size: 0.85rem;
-                margin-bottom: 0.4rem;
+                font-size: 0.8rem;
+                margin-bottom: 0.2rem;
                 width: 100%;
+                border-left: 3px solid #4CAF50;
             }
 
             #right-panel {
-                padding: 0.2rem 1rem 1.2rem 1rem;
+                padding: 0.1rem 1rem 0.6rem 1rem;
                 border: none;
                 margin-top: 0;
             }
             
+            /* 5. Compact 6-column button cluster anchored securely to the floor */
             .move-grid {
                 grid-template-columns: repeat(6, 1fr);
                 gap: 5px;
                 width: 100%;
             }
             .move-grid button {
-                font-size: 0.9rem;
-                padding: 0.5rem 0;
+                font-size: 0.85rem;
+                padding: 0.45rem 0;
                 border-radius: 4px;
                 margin-bottom: 0;
             }
@@ -237,14 +251,14 @@
             .mobile-action-row {
                 display: flex;
                 gap: 8px;
-                padding: 0.2rem 0 0.4rem 0;
+                padding: 0.1rem 0 0.3rem 0;
                 background: #1c1c24;
                 width: 100%;
             }
             .mobile-action-row button {
                 flex: 1;
-                padding: 0.7rem 0;
-                font-size: 0.95rem;
+                padding: 0.6rem 0;
+                font-size: 0.9rem;
                 margin-bottom: 0;
             }
         }
