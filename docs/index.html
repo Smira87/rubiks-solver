@@ -15,26 +15,37 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
             display: flex; 
+            flex-direction: row; /* Desktop layout: Left - Center - Right */
             height: 100vh; 
             width: 100vw;
             background: #1e1e24; 
             color: #fff;
             overflow: hidden;
         }
-        #ui-container { 
+        /* Panels general style */
+        .panel {
             width: 350px; 
             flex-shrink: 0;
-            padding: 2rem; 
+            padding: 1.5rem; 
             background: #2b2b36; 
-            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
             z-index: 10;
+            overflow-y: auto;
         }
+        #left-panel { border-right: 2px solid #1e1e24; }
+        #right-panel { border-left: 2px solid #1e1e24; }
+        
         #3d-container { 
             flex-grow: 1; 
             height: 100%;
             display: block; 
+            cursor: grab;
         }
-        h2 { margin-top: 0; color: #4CAF50; }
+        #3d-container:active { cursor: grabbing; }
+
+        h2, h3 { margin-top: 0; color: #4CAF50; }
+        label { display: block; margin-bottom: 0.5rem; color: #aaa; font-size: 0.9rem;}
+        
         input { 
             padding: 0.8rem; 
             width: 100%; 
@@ -45,6 +56,15 @@
             color: white;
             border-radius: 4px;
         }
+        input[readonly] {
+            color: #4CAF50;
+            background: #222;
+            cursor: default;
+        }
+        
+        .row { display: flex; gap: 10px; margin-bottom: 1rem; }
+        .row input { margin-bottom: 0; }
+        
         button { 
             padding: 0.8rem; 
             width: 100%; 
@@ -56,9 +76,13 @@
             border: none; 
             border-radius: 4px; 
             transition: background 0.3s;
+            margin-bottom: 0.5rem;
         }
         button:hover { background: #45a049; }
-        button:disabled { background: #555; cursor: not-allowed; }
+        button:disabled { background: #555; cursor: not-allowed; color: #888; }
+        button.action-btn { background: #008CBA; }
+        button.action-btn:hover { background: #007bb5; }
+        
         #result-box {
             margin-top: 1rem;
             padding: 1rem;
@@ -67,23 +91,89 @@
             border-radius: 4px;
             font-family: monospace;
             min-height: 50px;
+            word-wrap: break-word;
         }
-        #status { font-size: 0.9rem; margin-bottom: 1.5rem; color: #ff9800; }
+        #status { font-size: 0.9rem; margin-bottom: 1.5rem; color: #ff9800; font-weight: bold;}
+
+        /* Grid for 12 manual moves */
+        .move-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        .move-grid button {
+            background: #444;
+            margin-bottom: 0;
+            font-size: 1.2rem;
+            padding: 1rem 0;
+        }
+        .move-grid button:hover { background: #666; }
+
+        /* --- MOBILE RESPONSIVENESS --- */
+        @media (max-width: 900px) {
+            body { 
+                flex-direction: column; /* Mobile layout: Top - Middle - Bottom */
+                overflow-y: auto;
+            }
+            .panel { 
+                width: 100%; 
+                flex-shrink: 0;
+                box-shadow: none;
+            }
+            #left-panel { border-right: none; border-bottom: 2px solid #1e1e24; }
+            #right-panel { border-left: none; border-top: 2px solid #1e1e24; }
+            
+            #3d-container { 
+                height: 50vh; /* Make sure cube is visible on mobile */
+                min-height: 300px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="ui-container">
+    
+    <!-- LEFT PANEL: Solver & Random Scramble -->
+    <div id="left-panel" class="panel">
         <h2>Kociemba 3D Solver</h2>
         <div id="status">Loading WebAssembly...</div>
         
-        <label for="scramble">Enter Scramble:</label>
-        <input type="text" id="scramble" value="R U F2 D' L2 B'" placeholder="Scramble (e.g., R U F2)">
+        <label for="scramble-length">Number of moves:</label>
+        <div class="row">
+            <input type="number" id="scramble-length" value="20" min="1" max="50">
+            <button id="randomBtn" class="action-btn">Scramble</button>
+        </div>
+
+        <label for="scramble-input">Scramble moves:</label>
+        <input type="text" id="scramble-input" readonly placeholder="Cube is solved">
+        
         <button id="solveBtn" disabled>Solve Cube</button>
         
         <div id="result-box">Solution will appear here...</div>
     </div>
 
+    <!-- CENTER: 3D Visualization -->
     <div id="3d-container"></div>
+
+    <!-- RIGHT PANEL: Manual Move Controls -->
+    <div id="right-panel" class="panel">
+        <h3>Move Control</h3>
+        <p style="color:#aaa; font-size: 0.9rem; margin-top:0;">Manually rotate faces</p>
+        
+        <div class="move-grid">
+            <button class="manual-move-btn" data-move="U">U</button>
+            <button class="manual-move-btn" data-move="U'">U'</button>
+            <button class="manual-move-btn" data-move="D">D</button>
+            <button class="manual-move-btn" data-move="D'">D'</button>
+            <button class="manual-move-btn" data-move="R">R</button>
+            <button class="manual-move-btn" data-move="R'">R'</button>
+            <button class="manual-move-btn" data-move="L">L</button>
+            <button class="manual-move-btn" data-move="L'">L'</button>
+            <button class="manual-move-btn" data-move="F">F</button>
+            <button class="manual-move-btn" data-move="F'">F'</button>
+            <button class="manual-move-btn" data-move="B">B</button>
+            <button class="manual-move-btn" data-move="B'">B'</button>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

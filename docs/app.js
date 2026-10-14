@@ -1,17 +1,21 @@
 console.log("🚀 app.js is starting...");
 
+// --- 1. WASM INITIALIZATION ---
 const go = new Go();
 WebAssembly.instantiateStreaming(fetch("solver.wasm"), go.importObject).then((result) => {
     go.run(result.instance); 
     
     document.getElementById("status").innerText = "Morse Code ..- ._ 📟";
-    document.getElementById("status").style.color = "#ff9800";
+    document.getElementById("status").style.color = "#4CAF50";
     document.getElementById("solveBtn").disabled = false;
+    console.log("✅ WASM Engine loaded successfully!");
 }).catch(err => {
     console.error("❌ Failed to load WASM:", err);
     document.getElementById("status").innerText = "Failed to load engine.";
 });
 
+
+// --- 2. THREE.JS SCENE SETUP ---
 const container = document.getElementById('3d-container');
 const scene = new THREE.Scene();
 
@@ -23,7 +27,7 @@ const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
 camera.position.set(6, 5, 8);
 camera.lookAt(0, 0, 0);
 
-// Add Mouse Controls
+// OrbitControls (Mouse drag)
 const controls = new THREE.OrbitControls(camera, renderer.domElement);
 controls.enablePan = false;
 controls.enableDamping = true;
@@ -64,7 +68,6 @@ for (let x = -1; x <= 1; x++) {
                 new THREE.MeshStandardMaterial({ color: z === 1 ? Colors.F : Colors.Core }),
                 new THREE.MeshStandardMaterial({ color: z === -1 ? Colors.B : Colors.Core })
             ];
-
             const cubie = new THREE.Mesh(geometry, materials);
             cubie.position.set(x, y, z);
             scene.add(cubie);
@@ -77,8 +80,8 @@ const cubeGroup = new THREE.Group();
 cubies.forEach(c => cubeGroup.add(c));
 scene.add(cubeGroup);
 
-// --- ANIMATION SYSTEM ---
 
+// --- 3. ANIMATION SYSTEM ---
 let moveQueue = [];
 let isAnimating = false;
 const animationSpeed = 0.15; // Radians per frame
@@ -93,16 +96,23 @@ const faceDefinitions = {
 };
 
 function processQueue() {
-    if (moveQueue.length === 0 || isAnimating) return;
+    if (moveQueue.length === 0) {
+        // If queue is empty, enable buttons
+        document.getElementById("solveBtn").disabled = false;
+        document.getElementById("randomBtn").disabled = false;
+        return;
+    }
+    if (isAnimating) return;
 
     isAnimating = true;
-    const move = moveQueue.shift();
-    executeMove(move);
-}
+    
+    // Disable buttons while animating
+    document.getElementById("solveBtn").disabled = true;
+    document.getElementById("randomBtn").disabled = true;
 
-function executeMove(moveStr) {
-    const baseMove = moveStr[0]; // U, D, R, L, F, B
-    let modifier = moveStr[1] || ''; // ' or 2 or nothing
+    const moveStr = moveQueue.shift();
+    const baseMove = moveStr[0]; 
+    let modifier = moveStr[1] || ''; 
     
     const def = faceDefinitions[baseMove];
     let targetAngle = def.angle;
@@ -110,26 +120,18 @@ function executeMove(moveStr) {
     if (modifier === "'") targetAngle *= -1;
     if (modifier === "2") targetAngle *= 2;
 
-    // Find the 9 cubies that belong to this face based on their current world position
     const activeCubies = [];
     cubies.forEach(cubie => {
-        // We use Math.round to avoid floating point drift
         const pos = Math.round(cubie.getWorldPosition(new THREE.Vector3())[def.axis]);
-        if (pos === def.sign) {
-            activeCubies.push(cubie);
-        }
+        if (pos === def.sign) activeCubies.push(cubie);
     });
 
-    // Create a pivot point at the center of the cube
     const pivot = new THREE.Object3D();
     pivot.rotation.set(0, 0, 0);
     pivot.updateMatrixWorld();
     scene.add(pivot);
 
-    // Attach the 9 cubies to the pivot
-    activeCubies.forEach(cubie => {
-        pivot.attach(cubie);
-    });
+    activeCubies.forEach(cubie => pivot.attach(cubie));
 
     let currentAngle = 0;
     const step = (targetAngle > 0 ? animationSpeed : -animationSpeed);
@@ -137,26 +139,18 @@ function executeMove(moveStr) {
     function animateRotation() {
         if (Math.abs(currentAngle) < Math.abs(targetAngle)) {
             currentAngle += step;
-            // Prevent overshooting
-            if (Math.abs(currentAngle) > Math.abs(targetAngle)) {
-                currentAngle = targetAngle;
-            }
+            if (Math.abs(currentAngle) > Math.abs(targetAngle)) currentAngle = targetAngle;
             pivot.rotation[def.axis] = currentAngle;
             requestAnimationFrame(animateRotation);
         } else {
-            // Animation finished
             pivot.rotation[def.axis] = targetAngle;
             pivot.updateMatrixWorld();
             
-            // Detach cubies and add them back to the main group
             activeCubies.forEach(cubie => {
                 cubeGroup.attach(cubie);
-                
-                // Fix floating point drift
                 cubie.position.x = Math.round(cubie.position.x);
                 cubie.position.y = Math.round(cubie.position.y);
                 cubie.position.z = Math.round(cubie.position.z);
-                
                 cubie.rotation.x = Math.round(cubie.rotation.x / (Math.PI/2)) * (Math.PI/2);
                 cubie.rotation.y = Math.round(cubie.rotation.y / (Math.PI/2)) * (Math.PI/2);
                 cubie.rotation.z = Math.round(cubie.rotation.z / (Math.PI/2)) * (Math.PI/2);
@@ -165,25 +159,74 @@ function executeMove(moveStr) {
             scene.remove(pivot);
             isAnimating = false;
             
-            // Proceed to next move
-            setTimeout(processQueue, 50); // Small pause between moves
+            setTimeout(processQueue, 30); // Pause between moves
         }
     }
     animateRotation();
 }
 
-// --- BIND UI TO ANIMATION ---
+// --- 4. APP LOGIC & UI BINDINGS ---
 
-document.getElementById("solveBtn").addEventListener("click", () => {
-    if (isAnimating || moveQueue.length > 0) return; // Prevent double clicks
+const scrambleInput = document.getElementById("scramble-input");
+let isSolved = true; // Tracks if the physical 3D cube is in a solved state
 
-    const scramble = document.getElementById("scramble").value.trim();
-    if (!scramble) return;
+// Utility: append move to text input
+function appendToScrambleStr(move) {
+    if (isSolved) {
+        scrambleInput.value = move;
+        isSolved = false;
+    } else {
+        const current = scrambleInput.value.trim();
+        scrambleInput.value = current ? current + " " + move : move;
+    }
+}
 
-    // Apply the scramble visually first
-    const scrambleMoves = scramble.split(' ');
-    moveQueue.push(...scrambleMoves);
+// Random Scramble Generator
+const allMoves = ["U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B", "B'", "B2"];
+
+document.getElementById("randomBtn").addEventListener("click", () => {
+    if (isAnimating) return;
+
+    const length = parseInt(document.getElementById("scramble-length").value) || 20;
+    let sequence = [];
+    let lastFace = "";
+
+    for (let i = 0; i < length; i++) {
+        let randomMove;
+        let face;
+        do {
+            randomMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+            face = randomMove[0];
+        } while (face === lastFace); // Prevent redundant moves like U U'
+        
+        lastFace = face;
+        sequence.push(randomMove);
+        appendToScrambleStr(randomMove);
+    }
+
+    moveQueue.push(...sequence);
     processQueue();
+});
+
+// Manual Move Buttons
+document.querySelectorAll(".manual-move-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+        const move = e.target.getAttribute("data-move");
+        appendToScrambleStr(move);
+        moveQueue.push(move);
+        processQueue();
+    });
+});
+
+// Solve Button
+document.getElementById("solveBtn").addEventListener("click", () => {
+    if (isAnimating || moveQueue.length > 0) return;
+
+    const scramble = scrambleInput.value.trim();
+    if (!scramble) {
+        document.getElementById("result-box").innerHTML = `<span style="color:#aaa">Cube is already solved!</span>`;
+        return;
+    }
 
     const t0 = performance.now();
     const solutionStr = window.kociembaSolve(scramble);
@@ -194,18 +237,25 @@ document.getElementById("solveBtn").addEventListener("click", () => {
         return;
     }
 
+    // Process solution
     const solutionMoves = solutionStr.split(' ');
     
-    // Add solution moves to the queue to play right after scramble finishes
+    // Animate solution
     moveQueue.push(...solutionMoves);
-    
+    processQueue();
+
     document.getElementById("result-box").innerHTML = 
-        `<strong>Solution (${solutionMoves.length} moves):</strong><br><br>${solutionStr}<br><br><em>Engine calc: ${(t1 - t0).toFixed(2)} ms</em>`;
+        `<strong>Solution (${solutionMoves.length} moves):</strong><br><br>${solutionStr}<br><br><em>Calculated in ${(t1 - t0).toFixed(2)} ms</em>`;
+    
+    // Clear the input because the physical cube will return to solved state
+    scrambleInput.value = "";
+    isSolved = true; 
 });
 
+// Render loop
 function animate() {
     requestAnimationFrame(animate);
-    controls.update(); // Required for OrbitControls damping
+    controls.update(); 
     renderer.render(scene, camera);
 }
 animate();
