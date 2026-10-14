@@ -92,7 +92,7 @@ Follow these steps to run the environment locally:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com
+git clone https://github.com/Super-Morse/rubiks-solver.git
 cd rubiks-solver
 ```
 
