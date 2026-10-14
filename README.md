@@ -29,7 +29,7 @@ An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performa
     <tr>
       <td align="center" valign="top" width="60%">
         <b>🖥️ Desktop Full-Width View</b><br><br>
-        <img src="docs/assets/desctop-demo.gif" alt="Desktop Web Demo" width="100%" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"/>
+        <img src="docs/assets/desktop-demo.gif" alt="Desktop Web Demo" width="100%" style="border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"/>
       </td>
       <td align="center" valign="top" width="35%">
         <b>📱 Mobile View (Samsung A16)</b><br><br>
