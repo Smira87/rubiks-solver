@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Rubik's Cube Solver 3D</title>
     <script src="wasm_exec.js"></script>
     <script src="three.min.js"></script>
@@ -17,10 +17,11 @@
             padding: 0;
             width: 100vw;
             height: 100vh;
-            background: #1e1e24; 
+            background: #121214; 
             color: #fff;
             overflow: hidden;
         }
+        
         #3d-container { 
             position: absolute;
             top: 0;
@@ -29,147 +30,217 @@
             right: 350px;
             z-index: 1;
             cursor: grab;
-            background: #1e1e24;
+            background: #121214;
         }
         #3d-container:active { 
             cursor: grabbing; 
         }
+
         .panel {
             position: absolute;
             width: 350px; 
             height: 100vh;
             padding: 1.5rem; 
-            background: rgba(43, 43, 54, 0.90); 
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            background: rgba(28, 28, 36, 0.95); 
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
             z-index: 10;
             overflow-y: auto;
         }
         #left-panel { 
             top: 0;
             left: 0; 
-            border-right: 1px solid rgba(255,255,255,0.1); 
+            border-right: 1px solid rgba(255,255,255,0.05); 
         }
         #right-panel { 
             top: 0;
             right: 0; 
-            border-left: 1px solid rgba(255,255,255,0.1); 
+            border-left: 1px solid rgba(255,255,255,0.05); 
         }
+
         h2, h3 { 
             margin-top: 0; 
             color: #4CAF50; 
+            font-size: 1.4rem;
         }
         label { 
             display: block; 
             margin-bottom: 0.5rem; 
-            color: #ccc; 
-            font-size: 0.9rem;
+            color: #aaa; 
+            font-size: 0.85rem;
         }
         input { 
-            padding: 0.8rem; 
+            padding: 0.7rem; 
             width: 100%; 
-            font-size: 1rem; 
+            font-size: 0.95rem; 
             margin-bottom: 1rem;
-            background: rgba(30, 30, 36, 0.8);
-            border: 1px solid #555;
+            background: rgba(18, 18, 20, 0.8);
+            border: 1px solid #3a3a44;
             color: white;
-            border-radius: 4px;
+            border-radius: 6px;
         }
         input[readonly] {
             color: #4CAF50;
-            background: rgba(20, 20, 20, 0.8);
+            background: rgba(10, 10, 12, 0.8);
             cursor: default;
         }
-        .row { 
-            display: flex; 
-            gap: 10px; 
-            margin-bottom: 1rem; 
-        }
-        .row input { 
-            margin-bottom: 0; 
-        }
+
         button { 
-            padding: 0.8rem; 
+            padding: 0.75rem; 
             width: 100%; 
-            font-size: 1rem; 
+            font-size: 0.95rem; 
             font-weight: bold;
             cursor: pointer; 
             background: #4CAF50; 
             color: white; 
             border: none; 
-            border-radius: 4px; 
-            transition: background 0.3s;
+            border-radius: 6px; 
+            transition: all 0.2s ease;
             margin-bottom: 0.5rem;
         }
         button:hover { 
             background: #45a049; 
         }
         button:disabled { 
-            background: #555; 
+            background: #2a2a35; 
             cursor: not-allowed; 
-            color: #888; 
+            color: #5a5a65; 
+            border: 1px solid #323240;
         }
+        
         button.action-btn { 
-            background: #008CBA; 
+            background: #e91e63; 
         }
         button.action-btn:hover { 
-            background: #007bb5; 
+            background: #d81b60; 
         }
+
         #result-box {
             margin-top: 1rem;
-            padding: 1rem;
-            background: rgba(30, 30, 36, 0.8);
+            padding: 0.8rem;
+            background: rgba(18, 18, 20, 0.8);
             border-left: 4px solid #4CAF50;
             border-radius: 4px;
             font-family: monospace;
-            min-height: 50px;
+            min-height: 45px;
+            font-size: 0.9rem;
             word-wrap: break-word;
+            margin-bottom: 1rem;
         }
         #status { 
-            font-size: 0.9rem; 
-            margin-bottom: 1.5rem; 
+            font-size: 0.85rem; 
+            margin-bottom: 1rem; 
             color: #ff9800; 
             font-weight: bold;
         }
+
         .move-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
         }
         .move-grid button {
-            background: rgba(70, 70, 80, 0.8);
+            background: rgba(50, 50, 65, 0.6);
+            border: 1px solid #3a3a44;
+            font-size: 1.1rem;
+            padding: 0.8rem 0;
             margin-bottom: 0;
-            font-size: 1.2rem;
-            padding: 1rem 0;
         }
         .move-grid button:hover { 
-            background: #666; 
+            background: #4a4a5a; 
+            border-color: #5a5a6a;
         }
+
+        .mobile-action-row {
+            display: block;
+        }
+
+        /* MOBILE FIXES & ALIGNMENT */
         @media (max-width: 900px) {
-            .panel { 
-                width: 100vw; 
+            body {
+                display: flex;
+                flex-direction: column;
+                height: 100vh;
+                height: -webkit-fill-available;
+            }
+            
+            #3d-container {
+                position: relative;
+                width: 100vw;
+                flex: 1; /* Pushes everything below strictly to the bottom */
+                left: 0;
+                right: 0;
+                top: 0;
+                height: auto;
+            }
+            
+            #left-panel h2, #right-panel h3, #right-panel p, .desktop-only {
+                display: none !important;
+            }
+
+            .panel {
+                position: relative;
+                width: 100vw;
+                height: auto;
+                box-shadow: none;
+                backdrop-filter: none;
+                -webkit-backdrop-filter: none;
+                overflow: hidden;
+                background: #1c1c24;
+            }
+
+            #left-panel {
+                padding: 0.6rem 1rem 0 1rem;
                 border: none;
             }
-            #left-panel { 
-                height: 40vh;
-                top: 0; 
-                left: 0;
-                border-bottom: 2px solid #333; 
+            
+            input {
+                padding: 0.5rem 0.7rem;
+                margin-bottom: 0.4rem;
+                font-size: 0.9rem;
+                width: 100%;
             }
-            #right-panel { 
-                height: 30vh;
-                top: auto; 
-                bottom: 0; 
-                right: 0;
-                left: 0;
-                border-top: 2px solid #333; 
+            
+            #result-box {
+                margin-top: 0.4rem;
+                padding: 0.6rem;
+                min-height: 38px;
+                font-size: 0.85rem;
+                margin-bottom: 0.4rem;
+                width: 100%;
             }
-            #3d-container {
-                left: 0;
-                right: 0;
-                top: 40vh;
-                bottom: 30vh;
+
+            #right-panel {
+                padding: 0.2rem 1rem 1.2rem 1rem;
+                border: none;
+                margin-top: 0;
+            }
+            
+            .move-grid {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 5px;
+                width: 100%;
+            }
+            .move-grid button {
+                font-size: 0.9rem;
+                padding: 0.5rem 0;
+                border-radius: 4px;
+            }
+
+            /* Perfect centering and full width layout constraints fixed */
+            .mobile-action-row {
+                display: flex;
+                gap: 8px;
+                padding: 0.2rem 0 0.4rem 0; /* Cleared side paddings to align with inputs */
+                background: #1c1c24;
+                width: 100%; /* Changed from 100vw to prevent right-shifting */
+            }
+            .mobile-action-row button {
+                flex: 1;
+                padding: 0.7rem 0;
+                font-size: 0.95rem;
+                margin-bottom: 0;
             }
         }
     </style>
@@ -178,24 +249,28 @@
     
     <div id="3d-container"></div>
 
+    <!-- LEFT PANEL -->
     <div id="left-panel" class="panel">
         <h2>Kociemba 3D Solver</h2>
         <div id="status">Loading WebAssembly...</div>
         
-        <label for="scramble-length">Number of moves:</label>
-        <div class="row">
+        <div class="desktop-only">
+            <label for="scramble-length">Number of moves:</label>
             <input type="number" id="scramble-length" value="20" min="1" max="50">
-            <button id="randomBtn" class="action-btn">Scramble</button>
         </div>
 
         <label for="scramble-input">Scramble moves:</label>
         <input type="text" id="scramble-input" readonly placeholder="Cube is solved">
         
-        <button id="solveBtn" disabled>Solve Cube</button>
-        
         <div id="result-box">Solution will appear here...</div>
+
+        <div class="mobile-action-row">
+            <button id="randomBtn" class="action-btn">Scramble</button>
+            <button id="solveBtn" disabled>Solve Cube</button>
+        </div>
     </div>
 
+    <!-- RIGHT PANEL -->
     <div id="right-panel" class="panel">
         <h3>Move Control</h3>
         <p style="color:#aaa; font-size: 0.9rem; margin-top:0;">Manually rotate faces</p>
