@@ -6,6 +6,17 @@ An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performa
 
 ---
 
+## 🧠 Interesting Fact
+
+The classic 3x3x3 Rubik's Cube has **43,252,003,274,489,856,000** (43 quintillion) possible states. 
+
+To put this into perspective:
+* If you had a separate cube for every single combination, you could cover the entire surface of the Earth with them... **275 times over**.
+* If you could try one combination every second, it would take you **1.4 trillion years** to see them all (the Universe itself is only about 13.8 billion years old).
+* Despite this mind-boggling number, **any** valid scramble can be solved in **20 moves or less** (known as *God's Number*).
+
+---
+
 ## 📊 Code Quality & Sonar Metrics
 
 <div align="center">
