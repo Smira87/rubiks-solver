@@ -10,7 +10,7 @@ An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performa
 
 <div align="center">
   <a href="https://sonarcloud.io/project/overview?id=smira87_rubiks-solver" target="_blank">
-    <img src="docs/assets/sonar-mertrix.png" alt="SonarCloud Quality Gate Dashboard" width="100%" style="border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 15px;"/>
+    <img src="docs/assets/sonar-metrix.png" alt="SonarCloud Quality Gate Dashboard" width="100%" style="border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 15px;"/>
   </a>
 </div>
 
