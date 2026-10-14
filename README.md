@@ -8,6 +8,12 @@ An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performa
 
 ## 📊 Code Quality & Sonar Metrics
 
+<div align="center">
+  <a href="https://sonarcloud.io/project/overview?id=smira87_rubiks-solver" target="_blank">
+    <img src="docs/assets/sonar-metrix.png" alt="SonarCloud Quality Gate Dashboard" width="100%" style="border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.4); margin-bottom: 15px;"/>
+  </a>
+</div>
+
 | Metric | Status / Value | Description |
 |---|---|---|
 | **🔒 Security** | **A (0 Issues)** | Zero vulnerabilities or security hotspots detected. |
@@ -15,6 +21,8 @@ An ultra-fast, interactive 3D Rubik's Cube application featuring a high-performa
 | **🧹 Maintainability** | **A (0 Technical Debt)** | Follows idiomatic Go practices, clean architecture, and easy-to-read syntax. |
 | **🎯 Coverage** | **100.0%** | Comprehensive unit test suite with absolute statement coverage. |
 | **👥 Duplications** | **0.0%** | Zero code repetition, adhering strictly to the DRY principle. |
+
+👉 **Live Analytics Dashboard:** [SonarCloud Project Overview](https://sonarcloud.io/project/overview?id=smira87_rubiks-solver)
 
 ---
 
@@ -109,13 +117,14 @@ Open up your browser and navigate to `http://localhost:8080`.
 The logical implementation maintains strict safety constraints, completely avoiding regressive failures during table indexing. To execute the automated testing suit with code metrics tracking:
 
 ```bash
-go test -coverprofile=cover.out ./internal/solver
+go test -coverprofile=cover.out ./internal/...
 go tool cover -func=cover.out
 ```
 
 **Output Result:**
 ```text
-ok      rubiks-solver/internal/solver   3.773s  coverage: 100.0% of statements
+ok      rubiks-solver/internal/cube     1.847s  coverage: 100.0% of statements
+ok      rubiks-solver/internal/solver   1.816s  coverage: 100.0% of statements
 ```
 
 ---
